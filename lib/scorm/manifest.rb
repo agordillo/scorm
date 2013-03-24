@@ -102,16 +102,16 @@ module Scorm
       
       # Read additional resources as assets (this is a fix for packages that
       # don't correctly specify all resource dependencies in the manifest).
-      @package.files.each do |file|
-        next if File.directory?(file)
-        next if RESOURCES_BLACKLIST.include?(File.basename(file))
-        next if File.basename(file) =~ /^\./
-        next unless self.resources(:with_file => file).empty?
-        next unless self.resources(:href => file).empty?
+      # @package.files.each do |file|
+      #   next if File.directory?(file)
+      #   next if RESOURCES_BLACKLIST.include?(File.basename(file))
+      #   next if File.basename(file) =~ /^\./
+      #   next unless self.resources(:with_file => file).empty?
+      #   next unless self.resources(:href => file).empty?
         
-        res = Scorm::Resource.new(file, 'webcontent', 'asset', file, nil, [file])
-        @resources[file] = res
-      end
+      #   res = Scorm::Resource.new(file, 'webcontent', 'asset', file, nil, [file])
+      #   @resources[file] = res
+      # end
     
       # Read (optional) base url for resources
       resources_el = REXML::XPath.first(@xmldoc.root, '/manifest/resources')
