@@ -25,8 +25,8 @@ module Scorm
       @dependencies = dependencies || []
     end
     
-    def self.from_xml(element)
-      metadata = nil
+    def self.from_xml(element, package=nil)
+      @metadata = nil
       files = []
       REXML::XPath.each(element, 'file') do |file_el|
         files << element.attribute('xml:base').to_s + file_el.attribute('href').to_s
@@ -35,13 +35,40 @@ module Scorm
       REXML::XPath.each(element, 'dependency') do |dep_el|
         dependencies << dep_el.attribute('identifierref').to_s
       end
-    
+
+      # debugger
+      # Read metadata
+      if package
+        if metadata_el = REXML::XPath.first(element, 'metadata')
+          # Find a <lom> element...
+          lom_el = nil
+          if adlcp_location = REXML::XPath.first(metadata_el, 'adlcp:location')
+            # Read external metadata file
+            metadata_xmldoc = REXML::Document.new(package.file(adlcp_location.text.to_s))
+            if metadata_xmldoc.nil? || (metadata_xmldoc.root.name != 'lom')
+              raise InvalidManifest, "Invalid external metadata file (#{adlcp_location.text.to_s})."
+            else
+              lom_el = metadata_xmldoc.root
+            end
+          else
+            # Read inline metadata
+            lom_el = REXML::XPath.first(metadata_el, 'lom') ||
+                     REXML::XPath.first(metadata_el, 'lom:lom')
+          end
+        
+          # Read lom metadata
+          if lom_el
+            @metadata = Scorm::Metadata.from_xml(lom_el)
+          end
+        end
+      end
+
       res = self.new(
         element.attribute('identifier'), 
         element.attribute('type'), 
         element.attribute('scormType', 'adlcp') || element.attribute('scormtype', 'adlcp'),
         element.attribute('xml:base').to_s + element.attribute('href').to_s,
-        metadata,
+        @metadata,
         files,
         dependencies)
     end

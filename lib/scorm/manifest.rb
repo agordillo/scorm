@@ -96,7 +96,7 @@ module Scorm
     
       # Read resources
       REXML::XPath.each(@xmldoc.root, '/manifest/resources/resource') do |el|
-        res = Scorm::Resource.from_xml(el)
+        res = Scorm::Resource.from_xml(el, @package)
         @resources[res.id] = res
       end
       
