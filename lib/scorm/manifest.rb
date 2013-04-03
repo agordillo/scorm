@@ -97,7 +97,9 @@ module Scorm
       # Read resources
       REXML::XPath.each(@xmldoc.root, '/manifest/resources/resource') do |el|
         res = Scorm::Resource.from_xml(el, @package)
-        @resources[res.id] = res
+        if res
+          @resources[res.id] = res
+        end
       end
       
       # Read additional resources as assets (this is a fix for packages that

@@ -26,6 +26,10 @@ module Scorm
     end
     
     def self.from_xml(element, package=nil)
+      if !element.attribute('href')
+        return nil
+      end
+
       @metadata = nil
       files = []
       REXML::XPath.each(element, 'file') do |file_el|
