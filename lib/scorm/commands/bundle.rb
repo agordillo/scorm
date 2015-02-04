@@ -8,8 +8,8 @@ module Scorm::Command
       
       outname = File.basename(File.expand_path(name)) + '.zip'
       
-      require 'zip/zip'
-      Zip::ZipFile.open(outname, Zip::ZipFile::CREATE) do |zipfile|
+      require 'zip'
+      Zip::File.open(outname, Zip::File::CREATE) do |zipfile|
         Scorm::Package.open(name) do |pkg|
           Scorm::Manifest::MANIFEST_FILES.each do |file|
             zipfile.get_output_stream(file) {|f| f.write(pkg.file(file)) }
